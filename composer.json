@@ -1,0 +1,57 @@
+{
+    "name": "igor-kuzmanovic/doctrine-elastica-test-bundle",
+    "description": "PHPUnit rollback support for Elasticsearch writes performed through FOSElasticaBundle.",
+    "keywords": [
+        "symfony",
+        "elasticsearch",
+        "elastica",
+        "testing",
+        "phpunit"
+    ],
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Igor Kuzmanović",
+            "homepage": "https://github.com/igor-kuzmanovic/"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "friendsofsymfony/elastica-bundle": "^7.0 || dev-main",
+        "symfony/framework-bundle": "^6.4 || ^7.3 || ^8.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DoctrineElasticaTestBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DoctrineElasticaTestBundle\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "symfony": {
+            "bundle": "DoctrineElasticaTestBundle\\DoctrineElasticaTestBundle"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --configuration phpunit.xml.dist",
+        "phpstan": "phpstan analyse --configuration phpstan.neon.dist",
+        "cs": "php-cs-fixer fix --diff --dry-run --allow-risky=yes",
+        "ci": [
+            "@cs",
+            "@phpstan",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
