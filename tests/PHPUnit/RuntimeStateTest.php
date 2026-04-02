@@ -2,47 +2,38 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\Tests\PHPUnit;
+namespace Kuzman\DoctrineElasticaTestBundle\Tests\PHPUnit;
 
-use DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 use Elastica\Bulk\ResponseSet;
 use Elastica\Client;
 use Elastica\Document;
 use Elastica\Exception\NotFoundException;
 use Elastica\Index;
 use Elastica\Response;
+use Kuzman\DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 use PHPUnit\Framework\TestCase;
 
 final class RuntimeStateTest extends TestCase
 {
-    private string|null $originalServerStrategy = null;
-    private string|null $originalEnvStrategy = null;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $serverStrategy = $_SERVER['ELASTICSEARCH_TEST_STRATEGY'] ?? null;
-        $envStrategy = $_ENV['ELASTICSEARCH_TEST_STRATEGY'] ?? null;
-
-        $this->originalServerStrategy = \is_string($serverStrategy) ? $serverStrategy : null;
-        $this->originalEnvStrategy = \is_string($envStrategy) ? $envStrategy : null;
-
+        RuntimeState::disable();
         RuntimeState::reset();
     }
 
     protected function tearDown(): void
     {
         RuntimeState::reset();
-
-        $this->restoreStrategy();
+        RuntimeState::disable();
 
         parent::tearDown();
     }
 
     public function testCaptureBeforeMutationIsIgnoredWhenTestIsNotActive(): void
     {
-        $this->setStrategy('bundle');
+        RuntimeState::enable();
 
         $index = $this->createMock(Index::class);
         $index->expects(self::never())->method('getDocument');
@@ -53,7 +44,7 @@ final class RuntimeStateTest extends TestCase
 
     public function testRollbackRestoresSnapshotsAndDeletesNewDocuments(): void
     {
-        $this->setStrategy('bundle');
+        RuntimeState::enable();
         RuntimeState::beginTest();
 
         $client = $this->getMockBuilder(Client::class)
@@ -83,7 +74,7 @@ final class RuntimeStateTest extends TestCase
         $index->expects(self::once())
             ->method('addDocuments')
             ->with(self::callback(static function (array $documents): bool {
-                if (1 !== count($documents)) {
+                if (1 !== \count($documents)) {
                     return false;
                 }
 
@@ -107,7 +98,7 @@ final class RuntimeStateTest extends TestCase
 
     public function testCaptureBeforeMutationUsesIdentifierDeduplication(): void
     {
-        $this->setStrategy('bundle');
+        RuntimeState::enable();
         RuntimeState::beginTest();
 
         $index = $this->createMock(Index::class);
@@ -120,6 +111,18 @@ final class RuntimeStateTest extends TestCase
         RuntimeState::captureBeforeMutation($index, 'test_index', ['5', '5']);
     }
 
+    public function testCaptureBeforeMutationIsIgnoredWhenTrackingIsDisabledForTest(): void
+    {
+        RuntimeState::enable();
+        RuntimeState::beginTest(false);
+
+        $index = $this->createMock(Index::class);
+        $index->expects(self::never())->method('getDocument');
+
+        RuntimeState::captureBeforeMutation($index, 'test_index', ['1']);
+        RuntimeState::rollbackPendingMutations();
+    }
+
     public function testNormalizeIdentifier(): void
     {
         self::assertSame('5', RuntimeState::normalizeIdentifier(5));
@@ -128,27 +131,6 @@ final class RuntimeStateTest extends TestCase
         self::assertNull(RuntimeState::normalizeIdentifier(0));
         self::assertNull(RuntimeState::normalizeIdentifier(-1));
         self::assertNull(RuntimeState::normalizeIdentifier(null));
-    }
-
-    private function setStrategy(string $strategy): void
-    {
-        $_SERVER['ELASTICSEARCH_TEST_STRATEGY'] = $strategy;
-        $_ENV['ELASTICSEARCH_TEST_STRATEGY'] = $strategy;
-    }
-
-    private function restoreStrategy(): void
-    {
-        if (null === $this->originalServerStrategy) {
-            unset($_SERVER['ELASTICSEARCH_TEST_STRATEGY']);
-        } else {
-            $_SERVER['ELASTICSEARCH_TEST_STRATEGY'] = $this->originalServerStrategy;
-        }
-
-        if (null === $this->originalEnvStrategy) {
-            unset($_ENV['ELASTICSEARCH_TEST_STRATEGY']);
-        } else {
-            $_ENV['ELASTICSEARCH_TEST_STRATEGY'] = $this->originalEnvStrategy;
-        }
     }
 
     private function createResponseSet(): ResponseSet

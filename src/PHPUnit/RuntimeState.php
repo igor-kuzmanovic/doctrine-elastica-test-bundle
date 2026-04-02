@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\PHPUnit;
+namespace Kuzman\DoctrineElasticaTestBundle\PHPUnit;
 
 use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Elastica\Document;
@@ -11,6 +11,8 @@ use Elastica\Index;
 
 final class RuntimeState
 {
+    private static bool $enabled = false;
+
     /**
      * @var array<string, array<string, array<string, mixed>|null>>
      */
@@ -23,27 +25,42 @@ final class RuntimeState
 
     private static bool $testActive = false;
 
-    public static function beginTest(): void
+    public static function enable(): void
     {
-        if (!self::isBundleStrategyEnabled()) {
+        self::$enabled = true;
+    }
+
+    public static function disable(): void
+    {
+        self::$enabled = false;
+        self::reset();
+    }
+
+    public static function beginTest(bool $trackMutations = true): void
+    {
+        if (!self::$enabled) {
             self::reset();
 
             return;
         }
 
-        self::$testActive = true;
+        self::$testActive = $trackMutations;
     }
 
     public static function finishTestRun(): void
     {
-        if (!self::isBundleStrategyEnabled()) {
-            self::reset();
+        try {
+            if (!self::$enabled) {
+                self::reset();
 
-            return;
+                return;
+            }
+
+            self::rollbackPendingMutations();
+            self::$testActive = false;
+        } finally {
+            self::disable();
         }
-
-        self::rollbackPendingMutations();
-        self::$testActive = false;
     }
 
     public static function rollbackPendingMutations(): void
@@ -88,7 +105,7 @@ final class RuntimeState
                     $index->refresh();
                 }
             } catch (\Throwable $throwable) {
-                $errors[] = sprintf('[%s] %s', $indexName, $throwable->getMessage());
+                $errors[] = \sprintf('[%s] %s', $indexName, $throwable->getMessage());
             }
         }
 
@@ -104,7 +121,7 @@ final class RuntimeState
      */
     public static function captureBeforeMutation(Index $index, string $indexName, iterable $identifiers): void
     {
-        if (!self::isBundleStrategyEnabled() || !self::$testActive) {
+        if (!self::$enabled || !self::$testActive) {
             return;
         }
 
@@ -116,7 +133,7 @@ final class RuntimeState
                 continue;
             }
 
-            if (array_key_exists($normalizedIdentifier, self::$snapshots[$indexName] ?? [])) {
+            if (\array_key_exists($normalizedIdentifier, self::$snapshots[$indexName] ?? [])) {
                 continue;
             }
 
@@ -136,7 +153,7 @@ final class RuntimeState
             return null;
         }
 
-        if (is_int($identifier)) {
+        if (\is_int($identifier)) {
             if ($identifier <= 0) {
                 return null;
             }
@@ -144,13 +161,13 @@ final class RuntimeState
             return (string) $identifier;
         }
 
-        if (is_string($identifier)) {
+        if (\is_string($identifier)) {
             $identifier = trim($identifier);
 
             return '' === $identifier ? null : $identifier;
         }
 
-        if (is_float($identifier)) {
+        if (\is_float($identifier)) {
             if ($identifier <= 0) {
                 return null;
             }
@@ -193,16 +210,5 @@ final class RuntimeState
 
             throw $exception;
         }
-    }
-
-    private static function isBundleStrategyEnabled(): bool
-    {
-        $strategy = $_SERVER['ELASTICSEARCH_TEST_STRATEGY'] ?? $_ENV['ELASTICSEARCH_TEST_STRATEGY'] ?? 'bundle';
-
-        if (!\is_string($strategy)) {
-            return false;
-        }
-
-        return 'bundle' === strtolower($strategy);
     }
 }

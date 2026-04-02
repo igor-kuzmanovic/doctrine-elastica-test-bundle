@@ -19,7 +19,7 @@
         </include>
     </source>
 
-    <php>
-        <env name="ELASTICSEARCH_TEST_STRATEGY" value="bundle"/>
-    </php>
+    <extensions>
+        <bootstrap class="Kuzman\DoctrineElasticaTestBundle\PHPUnit\PHPUnitExtension"/>
+    </extensions>
 </phpunit>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\PHPUnit;
+namespace Kuzman\DoctrineElasticaTestBundle\PHPUnit;
 
 use PHPUnit\Event\Test\PreparationStarted as TestPreparationStartedEvent;
 use PHPUnit\Event\Test\PreparationStartedSubscriber as TestPreparationStartedSubscriber;
@@ -19,22 +19,25 @@ final class PHPUnitExtension implements Extension
 {
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
     {
-        $facade->registerSubscriber(new class () implements TestRunnerStartedSubscriber {
+        $facade->registerSubscriber(new class implements TestRunnerStartedSubscriber {
             public function notify(TestRunnerStartedEvent $event): void
             {
+                RuntimeState::enable();
                 RuntimeState::reset();
             }
         });
 
-        $facade->registerSubscriber(new class () implements TestPreparationStartedSubscriber {
+        $facade->registerSubscriber(new class implements TestPreparationStartedSubscriber {
             public function notify(TestPreparationStartedEvent $event): void
             {
                 RuntimeState::rollbackPendingMutations();
-                RuntimeState::beginTest();
+
+                $shouldTrackMutations = !SkipElasticsearchRollbackResolver::shouldSkip($event->test());
+                RuntimeState::beginTest($shouldTrackMutations);
             }
         });
 
-        $facade->registerSubscriber(new class () implements TestRunnerFinishedSubscriber {
+        $facade->registerSubscriber(new class implements TestRunnerFinishedSubscriber {
             public function notify(TestRunnerFinishedEvent $event): void
             {
                 RuntimeState::finishTestRun();

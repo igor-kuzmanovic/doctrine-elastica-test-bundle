@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\DependencyInjection\Compiler;
+namespace Kuzman\DoctrineElasticaTestBundle\DependencyInjection\Compiler;
 
-use DoctrineElasticaTestBundle\Persister\TrackingObjectPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
+use Kuzman\DoctrineElasticaTestBundle\Persister\TrackingObjectPersister;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,8 +34,8 @@ final class DecoratePersistersCompilerPass implements CompilerPassInterface
                 $indexName = $firstTag['index'];
             }
 
-            $decoratorId = sprintf('doctrine_elastica_test.tracking_object_persister.%s', $indexName);
-            $innerServiceId = sprintf('%s.inner', $decoratorId);
+            $decoratorId = \sprintf('kuzman_doctrine_elastica_test.tracking_object_persister.%s', $indexName);
+            $innerServiceId = \sprintf('%s.inner', $decoratorId);
 
             $decorator = new Definition(TrackingObjectPersister::class);
             $decorator->setDecoratedService($serviceId);
@@ -56,7 +56,7 @@ final class DecoratePersistersCompilerPass implements CompilerPassInterface
         }
 
         if ($definition instanceof ChildDefinition) {
-            return in_array($definition->getParent(), ['fos_elastica.object_persister', 'fos_elastica.object_serializer_persister'], true);
+            return \in_array($definition->getParent(), ['fos_elastica.object_persister', 'fos_elastica.object_serializer_persister'], true);
         }
 
         $className = $definition->getClass();

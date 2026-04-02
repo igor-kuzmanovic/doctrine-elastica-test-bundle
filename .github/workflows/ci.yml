@@ -1,39 +1,100 @@
-name: CI
+name: 'Continuous integration'
 
 on:
-    push:
     pull_request:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+
+env:
+    COMPOSER_NO_INTERACTION: 1
 
 jobs:
-    test:
-        name: PHP ${{ matrix.php }}
+    php-cs-fixer:
+        name: PHP-CS-Fixer
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                php: ['8.2', '8.5']
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install PHP with tools
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  php-version: '8.4'
+                  tools: composer:v2, php-cs-fixer:3.94.2
+
+            - name: Check PHP code style
+              run: php-cs-fixer fix --diff --dry-run --allow-risky=yes --using-cache=no
+
+    linters:
+        name: Linters
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  php-version: '8.4'
+                  tools: composer:v2
+
+            - name: Lint Composer config
+              run: composer validate --no-check-publish --strict
+
+    static-analysis:
+        name: PHPStan
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ matrix.php }}
                   coverage: none
+                  php-version: '8.4'
                   tools: composer:v2
 
-            - name: Validate Composer
-              run: composer validate --strict
+            - name: Install dependencies
+              run: composer install --ansi --no-progress
 
-            - name: Install Dependencies
-              run: composer install --prefer-dist --no-progress --no-interaction
-
-            - name: Coding Standards
-              run: composer cs
-
-            - name: Static Analysis
+            - name: Run PHPStan
               run: composer phpstan
 
-            - name: Tests
+    tests:
+        name: Tests (PHP ${{ matrix.php-version }})
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php-version: ['8.2', '8.3', '8.4', '8.5']
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install PHP with extensions
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  extensions: mbstring
+                  php-version: ${{ matrix.php-version }}
+                  tools: composer:v2
+
+            - name: Add PHPUnit matcher
+              run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+            - name: Install dependencies
+              run: composer install --ansi --no-progress
+
+            - name: Run tests
               run: composer test

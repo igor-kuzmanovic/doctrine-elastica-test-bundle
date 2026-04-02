@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\Persister;
+namespace Kuzman\DoctrineElasticaTestBundle\Persister;
 
-use DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 use Elastica\Document;
 use Elastica\Index;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Kuzman\DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 
 /**
  * @template TObject of object
@@ -132,7 +132,7 @@ final class TrackingObjectPersister implements ObjectPersisterInterface
 
     private function resolveIdentifier(object $object): ?string
     {
-        if (is_callable([$this->inner, 'transformToElasticaDocument'])) {
+        if (\is_callable([$this->inner, 'transformToElasticaDocument'])) {
             $document = $this->inner->transformToElasticaDocument($object);
             if (!$document instanceof Document) {
                 return null;
@@ -142,7 +142,6 @@ final class TrackingObjectPersister implements ObjectPersisterInterface
         }
 
         if (method_exists($object, 'getId')) {
-            /** @var mixed $id */
             $id = $object->getId();
 
             return RuntimeState::normalizeIdentifier($id);

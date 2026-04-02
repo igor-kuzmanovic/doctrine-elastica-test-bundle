@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle;
+namespace Kuzman\DoctrineElasticaTestBundle;
 
-use DoctrineElasticaTestBundle\DependencyInjection\Compiler\DecoratePersistersCompilerPass;
+use Kuzman\DoctrineElasticaTestBundle\DependencyInjection\Compiler\DecoratePersistersCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
-final class DoctrineElasticaTestBundle extends Bundle
+final class KuzmanDoctrineElasticaTestBundle extends AbstractBundle
 {
     public function build(ContainerBuilder $container): void
     {

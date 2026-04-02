@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DoctrineElasticaTestBundle\Tests\Persister;
+namespace Kuzman\DoctrineElasticaTestBundle\Tests\Persister;
 
-use DoctrineElasticaTestBundle\Persister\TrackingObjectPersister;
-use DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 use Elastica\Document;
 use Elastica\Exception\NotFoundException;
 use Elastica\Index;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Kuzman\DoctrineElasticaTestBundle\Persister\TrackingObjectPersister;
+use Kuzman\DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 use PHPUnit\Framework\TestCase;
 
 final class TrackingObjectPersisterTest extends TestCase
@@ -18,17 +18,15 @@ final class TrackingObjectPersisterTest extends TestCase
     {
         parent::setUp();
 
-        $_SERVER['ELASTICSEARCH_TEST_STRATEGY'] = 'bundle';
-        $_ENV['ELASTICSEARCH_TEST_STRATEGY'] = 'bundle';
-
         RuntimeState::reset();
+        RuntimeState::enable();
         RuntimeState::beginTest();
     }
 
     protected function tearDown(): void
     {
         RuntimeState::reset();
-        unset($_SERVER['ELASTICSEARCH_TEST_STRATEGY'], $_ENV['ELASTICSEARCH_TEST_STRATEGY']);
+        RuntimeState::disable();
 
         parent::tearDown();
     }
