@@ -6,11 +6,11 @@ namespace Kuzman\DoctrineElasticaTestBundle\Tests\PHPUnit;
 
 use Kuzman\DoctrineElasticaTestBundle\PHPUnit\SkipElasticsearchRollback;
 use Kuzman\DoctrineElasticaTestBundle\PHPUnit\SkipElasticsearchRollbackResolver;
-use PHPUnit\Event\TestData\TestDataCollection;
-use PHPUnit\Event\Code\TestMethod;
 use PHPUnit\Event\Code\TestDox;
-use PHPUnit\Metadata\MetadataCollection;
+use PHPUnit\Event\Code\TestMethod;
+use PHPUnit\Event\TestData\TestDataCollection;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Metadata\MetadataCollection;
 
 final class SkipElasticsearchRollbackResolverTest extends TestCase
 {
