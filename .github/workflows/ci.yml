@@ -68,7 +68,7 @@ jobs:
               run: composer install --ansi --no-progress
 
             - name: Run PHPStan
-              run: composer phpstan
+              run: vendor/bin/phpstan analyse
 
     tests:
         name: Tests (PHP ${{ matrix.php-version }})
@@ -97,4 +97,4 @@ jobs:
               run: composer install --ansi --no-progress
 
             - name: Run tests
-              run: composer test
+              run: vendor/bin/phpunit
