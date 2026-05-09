@@ -1,5 +1,7 @@
 # DoctrineElasticaTestBundle
 
+[![Continuous integration](https://github.com/igor-kuzmanovic/doctrine-elastica-test-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/igor-kuzmanovic/doctrine-elastica-test-bundle/actions/workflows/ci.yml)
+
 DoctrineElasticaTestBundle rolls back Elasticsearch changes made through FOSElastica persisters between PHPUnit tests.
 
 Heavily inspired by https://github.com/dmaicher/doctrine-test-bundle.  
