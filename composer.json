@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": ">=8.2",
-        "friendsofsymfony/elastica-bundle": "dev-main",
+        "friendsofsymfony/elastica-bundle": "^7.2",
         "symfony/framework-bundle": "^6.4 || ^7.3 || ^8.0"
     },
     "require-dev": {
@@ -45,12 +45,6 @@
             "bundle": "Kuzman\\DoctrineElasticaTestBundle\\KuzmanDoctrineElasticaTestBundle"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/igor-kuzmanovic/FOSElasticaBundle"
-        }
-    ],
     "config": {
         "sort-packages": true
     },
