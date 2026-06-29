@@ -5,6 +5,7 @@ on:
     push:
         branches:
             - main
+            - fos-elastica-compatibility
 
 permissions:
     contents: read
