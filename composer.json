@@ -23,12 +23,12 @@
     "require": {
         "php": ">=8.2",
         "friendsofsymfony/elastica-bundle": "^7.2",
-        "symfony/framework-bundle": "^6.4 || ^7.3 || ^8.0"
+        "symfony/framework-bundle": "^6.4 || ^7.3 || ^8.0 || ^8.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.94",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.5.41 || ^12.3.14 || ^13.0"
+        "phpunit/phpunit": "^11.5 || ^12.3 || ^13.0"
     },
     "autoload": {
         "psr-4": {

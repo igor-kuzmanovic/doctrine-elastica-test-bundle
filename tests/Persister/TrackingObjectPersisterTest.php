@@ -80,12 +80,9 @@ final class TestEntity
     }
 }
 
-/**
- * @implements ObjectPersisterInterface<TestEntity>
- */
 final class TestObjectPersister implements ObjectPersisterInterface
 {
-    /** @var list<TestEntity> */
+    /** @var list<object> */
     public array $inserted = [];
 
     /** @var list<list<string>> */

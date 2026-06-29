@@ -11,14 +11,9 @@ use Kuzman\DoctrineElasticaTestBundle\PHPUnit\RuntimeState;
 
 /**
  * @template TObject of object
- *
- * @implements ObjectPersisterInterface<TObject>
  */
 final class TrackingObjectPersister implements ObjectPersisterInterface
 {
-    /**
-     * @param ObjectPersisterInterface<TObject> $inner
-     */
     public function __construct(
         private readonly ObjectPersisterInterface $inner,
         private readonly Index $index,
